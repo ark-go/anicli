@@ -1,6 +1,6 @@
 package internal
 
-import "github.com/ani-prog-go/cmdcli/pkg/structs"
+import "github.com/ark-go/anicli/pkg/structs"
 
 func GetCommands() *structs.Commands {
 	cmd := structs.Commands{

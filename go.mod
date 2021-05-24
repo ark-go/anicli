@@ -1,3 +1,3 @@
-module github.com/ani-prog-go/cmdcli
+module github.com/ark-go/anicli
 
 go 1.16

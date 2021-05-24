@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/ani-prog-go/cmdcli/internal"
+	"github.com/ark-go/anicli/internal"
 )
 
 func main() {
