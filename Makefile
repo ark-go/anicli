@@ -13,5 +13,3 @@ run: build
 gittag:
 	git tag v1.0.4
 	git push origin --tags
-# git tag -d v1.0.2  - удаляем тег в локальном репозитарии	
-# git push origin --delete v1.0.2  - удалить тег на сервере
