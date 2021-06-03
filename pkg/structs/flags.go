@@ -1,74 +1,60 @@
 package structs
 
-import (
-	"errors"
-	"regexp"
-)
-
-//флаги массив
-type Flags []Flag
+//флаг
 type Flag struct {
-	Name string
-	// флаг найден
-	isPresent bool
-	IsValue   bool //  у флага ждать значение
-	Value     []string
-	ValType   interface{}
-	// флаг обязательный
-	IsRequired bool
-	HelpShort  string
-	Help       string
+	id         int      // для сортировки
+	parent     *command // Пригодится для возврата родительской команды
+	name       string
+	isPresent  bool     // флаг найден/задан
+	noValues   bool     // не будем проверять значения флага
+	values     []string // если были данные
+	isRequired bool     // флаг обязательный
+	helpShort  string
+	help       string
 }
 
-func (s *Flags) InitFlags() {
-	for i := 0; i < len(*s); i++ {
-		(*s)[i].Value = []string{}
-	}
-}
-func (f *Flags) FindFlags(s string) (*Flag, error) {
-
-	if matched, err := regexp.MatchString(`^-{1}\w`, s); err == nil && matched {
-		newS := s[1:] // убираем минус
-		for i := 0; i < len(*f); i++ {
-			//	for _, v := range *f {
-			if (*f)[i].Name == newS {
-				(*f)[i].isPresent = true
-
-				return &(*f)[i], nil
-			}
-		}
-
-	}
-
-	return nil, errors.New("не найдено флага")
+// Устанавливает флаг обязательный и возвращает родительскую команду
+func (f *Flag) Required() *command {
+	f.isRequired = true
+	return f.parent
 }
 
-// flg = s
-func (s *Flags) ParseFlags(args []string) {
-	var bufferFlag *Flag // храним адрес флага для записи в него значения если оно есть
+// Возвращает родительскую команду флага
+func (f *Flag) GetCommand() *command {
+	return f.parent
+}
 
-	for i, val := range args {
-		if i < 1 {
-			continue
-		}
-		var cm *Flag
-		if matched := RegexpMinus.MatchString(val); matched { // начинается с минуса "-"
-			bufferFlag = nil // получили флаг,значит очистим буфер для адреса флага
-			if cm, _ = s.FindFlags(val); cm != nil {
-				if cm.IsValue { //! Эта проверка вроде лишняя, параметр говорит о том, что мы ожидаем параметр
-					// Ожидаем что у флага будет значение, сохраняем адрес флага
-					bufferFlag = cm // на следущем шаге, если в начале нет минуса, заберем значение
-				}
-			} else {
-				*NotFoundFlag = append(*NotFoundFlag, val) // флага с таким именем (val) нет
-			}
-		} else {
-			if bufferFlag != nil { // ожидали значение
-				bufferFlag.Value = append(bufferFlag.Value, val) // отправляем значение по адресу
-			} else {
-				break // кончились флаги у команды, т.е. началась новая команда - выходим из for
-			}
+// Устанавливает метку о том что значений у флага не ждем
+func (f *Flag) NoValues() *command {
+	f.noValues = true
+	return f.parent
+}
 
-		}
-	}
+// Добавляет флаг к команде
+func (f *Flag) AddFlag(name string, help string) *Flag {
+	return f.parent.AddFlag(name, help)
+}
+
+// Добавляет / изменяет справку о флаге
+func (f *Flag) AddHelp(help string) *Flag {
+	f.help = help
+	return f
+}
+
+// Добавляет / заменяет короткую справку о флаге
+func (c *Flag) AddHelpShort(help string) *Flag {
+	c.helpShort = help
+	return c
+}
+
+// устанавливаем метку о том что флаг был найден в коммандной строке
+// func (f *Flag) setPresent() *Flag {
+// 	f.isPresent = true
+// 	return f
+// }
+
+// Возвращает значение и метку об установке значения
+func (f *Flag) GetValues() (bool, []string) {
+
+	return f.isPresent, f.values
 }

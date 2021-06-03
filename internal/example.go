@@ -1,51 +1,23 @@
+// Пакет с примером для ...
 package internal
 
 import "github.com/ark-go/cli/pkg/structs"
 
-func GetCommands() *structs.Commands {
-	cmd := structs.Commands{
-		structs.Command{
-			Name:      "BBB",
-			HelpShort: "Для теста",
-			Flags: structs.Flags{
-
-				structs.Flag{
-					Name:      "lolololol",
-					IsValue:   true,
-					HelpShort: "этот ключ нужен для тестирования",
-				},
-				structs.Flag{
-					Name:    "k",
-					IsValue: true,
-				},
-				structs.Flag{
-					Name:       "kmf",
-					IsValue:    true,
-					IsRequired: true,
-				},
-				structs.Flag{
-					Name:    "notreb",
-					IsValue: true,
-				},
-				structs.Flag{
-					Name:    "notreb2",
-					IsValue: true,
-				},
-			},
-		},
-		structs.Command{
-			Name: "kkkk",
-			Flags: structs.Flags{
-				structs.Flag{
-					Name:    "g",
-					IsValue: true,
-				},
-				structs.Flag{
-					Name:    "c",
-					IsValue: true,
-				},
-			},
-		},
-	}
-	return &cmd
+func CreateCmd() *structs.AllCommands {
+	cmd := structs.GetCommands()
+	cmd.HelpBefore = `
+Пример пакета, позволяющего разбирать коммандную строку и создавать заранее известную структуру команд и флагов,
+правила простые...
+`
+	cmd.HelpAfter = `copyright 2021
+`
+	cmd.Add("help", "Вывод справки").NoFlags().Required()
+	cmd.Add("-help", "Вывод справки")
+	cmd.Add("copy", "Копирование файла").
+		AddFlag("-r", "путь к файлу для чтения, если путь с пробелами то в кавычках").Required().
+		AddFlag("-w", "Путь к файлу для записи, если путь с пробелами то в кавычках")
+	cmd.Add("reverse", "копирует и перефорачивает файл задом наперед")
+	cmd.Add("addPath", "Добавить дополнительные пути для копирования файла").
+		AddFlag("-p", "Путь к дополнительному файлу, флаг может повторятся для нескольких путей")
+	return cmd
 }

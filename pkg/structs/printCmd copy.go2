@@ -1,0 +1,162 @@
+// +build windows
+package structs
+
+import (
+	"errors"
+	"fmt"
+
+	//"golang.org/x/sys/windows"
+	//"os"
+
+	"runtime"
+	"strconv"
+	"strings"
+)
+
+// func init() {
+// 	stdout := windows.Handle(os.Stdout.Fd())
+// 	var originalMode uint32
+
+// 	windows.GetConsoleMode(stdout, &originalMode)
+// 	windows.SetConsoleMode(stdout, originalMode|windows.ENABLE_VIRTUAL_TERMINAL_PROCESSING)
+// }
+
+// var printFormatRight []int
+// var printFormatLeft []int
+type Direction int
+
+const (
+	North Direction = iota
+	East
+	South
+	West
+)
+
+//re
+
+func init() {
+
+}
+func (ac *AllCommands) PrintHelp(pm printMode) {
+	ac.printCmd(pm, true)
+}
+func (ac *AllCommands) TestCmd() error {
+	ac.printCmd(PrintModeShowError, false)
+	return errors.New("ошибка теста")
+}
+func (ac *AllCommands) printCmd(pm printMode, yesPrint bool) error {
+	if len(ac.HelpBefore) > 0 {
+		fmt.Printf("%s\n", ac.HelpBefore)
+	}
+	isReq := false
+	notInstMess := ""
+	requiredMess := ""
+	keys := ac.sortedCommand()
+	for _, v := range keys {
+		// если команды нет, подготовим об этом сообщение
+		if !ac.Commands[v].isPresent {
+			notInstMess = "Not Present "
+			if ac.Commands[v].isRequired {
+				isReq = true
+				requiredMess = "REQUIRED "
+				//if runtime.GOOS == "linux" {
+				requiredMess = "\033[1;31mREQUIRED \033[0m"
+				//}
+			}
+		}
+		if yesPrint {
+			PrintConsole(ac.printFormatLeft, ac.Commands[v].name, ac.Commands[v].helpShort)
+			if pm == PrintModeShowValue {
+				if len(requiredMess+notInstMess) > 0 {
+					PrintConsole(ac.printFormatRight, "", "\b! "+requiredMess+notInstMess)
+				}
+			}
+		}
+		notInstMess = ""
+		requiredMess = ""
+		if !ac.Commands[v].noFlags { // если команда ждет флаги  то пройдемся по ключам
+			keys2 := ac.Commands[v].sortedFlag() // сортируем ключи
+			for _, v2 := range keys2 {
+				if ac.Commands[v].flags[v2].isPresent || pm == PrintModeShowValue {
+					// если флаг не установлен подготовим об этом сообщение
+					if !ac.Commands[v].flags[v2].isPresent {
+						notInstMess = "Not present "
+						// если флаг обязательный а также команда обязательна
+						// флаг обязательный только если установлена команда //!
+						if ac.Commands[v].flags[v2].isRequired {
+							isReq = true
+							requiredMess = "REQUIRED "
+							if runtime.GOOS == "linux" {
+								requiredMess = "\033[1;31mREQUIRED \033[0m"
+							}
+						}
+					}
+
+					if yesPrint {
+						PrintConsole(ac.printFormatRight, ac.Commands[v].flags[v2].name, ac.Commands[v].flags[v2].helpShort)
+						if pm == PrintModeShowValue {
+							if len(ac.Commands[v].flags[v2].values) > 0 {
+
+								PrintConsole(ac.printFormatRight, "", "\b> "+strings.Join(ac.Commands[v].flags[v2].values, ", "))
+
+							} else if len(requiredMess+notInstMess) > 0 {
+								PrintConsole(ac.printFormatRight, "", "\b> "+requiredMess+notInstMess)
+							}
+						}
+					}
+					notInstMess = ""
+					requiredMess = ""
+				}
+			}
+
+		} else {
+			if yesPrint {
+				PrintConsole(ac.printFormatRight, "", "не требует флагов / ключей")
+			}
+		}
+		fmt.Printf("\n")
+
+		//}
+
+	}
+
+	if isReq {
+		{
+			fmt.Printf("Не установлены обязательные значения\n")
+		}
+		return errors.New("не установлены обязательные значения")
+	}
+	if len(ac.HelpAfter) > 0 {
+		fmt.Printf("%s\n", ac.HelpAfter)
+	}
+	return nil
+}
+
+func PrintConsole(xx []int, str1 string, str string) {
+	format := "% " + strconv.Itoa(xx[0]) + "s | % -" + strconv.Itoa(xx[1]) + "s\n"
+	lenght := len(str)
+	str = strings.ReplaceAll(str, "\n", "")
+	for {
+		str = strings.ReplaceAll(str, "  ", " ")
+		if lenght == len(str) {
+			break
+		}
+		lenght = len(str)
+	}
+
+	words := strings.Split(str, " ")
+	sumstr := ""
+	for _, word := range words {
+		if (len(sumstr) + len(word)) > xx[1] {
+			fmt.Printf(format, str1, sumstr)
+			str1 = ""
+			sumstr = ""
+		}
+		sumstr += " " + word
+		sumstr = strings.TrimSpace(sumstr)
+	}
+	if len(sumstr) > 0 {
+		fmt.Printf(format, str1, sumstr)
+	}
+	// println(runtime.GOOS)
+}

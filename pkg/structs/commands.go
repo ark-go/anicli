@@ -1,108 +1,179 @@
+// Все структуры проекта
 package structs
 
 import (
 	"errors"
 	"fmt"
-	"os"
+	"sort"
 )
 
-// Все команды массив
-type Commands []Command
-
-type Command struct {
+type command struct {
+	// автополе только для сортировки
+	id int
 	//Название команды
-	Name string
-	//если команда была задана то true, поле скрыто
+	name string
+	//если команда была задана то true
 	isPresent bool
-	//флаги команды []Flag
-	Flags Flags
-	//Требует обязательного наличия
-	IsRequired bool
+	// не требует данных
+	noFlags bool
+	//Флаги этой команды
+	flags map[string]*Flag
+	//Требует обязательного наличия, в командной строке
+	isRequired bool
+	//Короткая справка для -help
+	helpShort string
 	//Справка для -help
-	HelpShort string
-	//Справка для -help
-	Help     string
-	Function func(f *Flags)
+	help string
 }
 
-func (c *Commands) InitCommands() {
-	for _, val := range *c {
-		val.Flags.InitFlags()
-	}
-
+type AllCommands struct {
+	Commands   map[string]*command
+	HelpBefore string
+	HelpAfter  string
 }
 
-func (c *Commands) FindCommand(s string) (Command, error) {
-
-	//for i, v := range *c {
-	for i := 0; i < len(*c); i++ {
-		if (*c)[i].Name == s {
-			(*c)[i].isPresent = true
-			return (*c)[i], nil
-		}
-	}
-	return Command{}, errors.New("не найдено команды")
+// start
+func GetCommands() *AllCommands {
+	a := &AllCommands{}
+	a.HelpBefore = ""
+	a.HelpAfter = ""
+	// a.printFormatRight = []int{15, 50}
+	// a.printFormatLeft = []int{-15, 50}
+	return a
 }
 
-func (c *Commands) GetHelp() {
-	if len(*c) > 0 {
-		fmt.Printf("%s", "Требуемые и установленые параметры:\n")
-	}
-	for _, comm := range *c {
-		if comm.isPresent { // соманда указана
-			fmt.Printf("\033[1;32m%s\t\033[1;36m%s\033[0m\n", comm.Name, comm.HelpShort)
-			for _, flag := range comm.Flags { // перебираем флаги
-
-				if flag.isPresent || flag.IsRequired {
-					//fmt.Printf("\t-%s - %s \n", flag.Name, flag.HelpShort)
-					fmt.Printf("\033[1;32m\t-%s  \033[1;36m%s\033[0m\n", flag.Name, flag.HelpShort)
-					if len(flag.Value) > 0 {
-						fmt.Printf("\t  => %s", "")
-						for _, valr := range flag.Value { // перебираем значения флага
-							fmt.Printf(" '%s' ", valr)
-						}
-					} else {
-						fmt.Printf("\033[1;31m\t  => %s\033[0m", "Этот флаг требует параметров!")
-					}
-					fmt.Printf("%s", "\n")
-				}
-				// else if !flag.isPresent {
-				// 	fmt.Printf("\t  => %s\n", "false")
-				// }
-			}
-		}
-	}
-}
-
-/*
-ParseCommand Ищет все команды (значения без минуса),
-поле Flags каждой команды и оставшуюся часть коммандной строки args,
-передает (ParseFlags) для поиска флагов, следующих за командой.
-
-! Команда не найдет висящих флагов с минусом без впереди стоящей команды
+/* Формат печати справки
+   l - левое поле int
+   r - правое поле int
 */
-func (c *Commands) ParseCommands() {
-	*NotFoundCommand = nil //new([]string)
-	c.InitCommands()
-	arrArg := os.Args
-	// хранит адреса флагов и оставшуюся командную строку для разбора
-	for i := 0; i < len(arrArg); i++ {
-		if i == 0 {
-			continue
-		}
-		val := arrArg[i]
+func (ac *AllCommands) SetPrintFormat(l int, r int) {
+	printFormatRight = []int{l, r}     // левый отступ
+	printFormatLeft = []int{l * -1, r} // размер правого поля
+}
 
-		if matched := RegexpMinus.MatchString(val); !matched { // НЕ начинается с "-"
-			if cm, err := c.FindCommand(val); err == nil {
-				cm.Flags.ParseFlags(arrArg[i:])
-			} else {
-				*NotFoundCommand = append(*NotFoundCommand, val)
-			}
+/* Проверка команды
+если была в командной строке то вернет true
+иначе error
+*/
+func (ac *AllCommands) IsCommand(command string) (bool, error) {
+	com := ac.Commands[command]
+	if com == nil {
+		return false, errors.New("такой команды не существует, ошибка в имени команды")
+	}
+	if !com.isPresent {
+		return false, errors.New("не установлена команда")
+	}
+	return true, nil
+
+}
+
+/* Добавить команду
+   noFlags - флагов не будет
+   name - имя команды
+   help - краткая справка о команде
+*/
+func (ac *AllCommands) Add(name string, help string) *command {
+	if ac.Commands == nil {
+		ac.Commands = make(map[string]*command)
+	}
+	cmd := command{
+		id:        len(ac.Commands),
+		name:      name,
+		noFlags:   false,
+		helpShort: help,
+		flags:     make(map[string]*Flag),
+	}
+	if ac.Commands[name] != nil {
+		fmt.Printf("WARNING: Повторно определена каманда: %s\n", name)
+	}
+
+	ac.Commands[name] = &cmd
+	return &cmd
+}
+
+// Делает команду обязательной
+func (c *command) Required() *command {
+	c.isRequired = true
+	return c
+}
+
+// У команды не будет флагов
+func (c *command) NoFlags() *command {
+	c.noFlags = true
+	return c
+}
+
+// Добавляет / заменяет HelpShort команды
+func (c *command) AddHelpShort(help string) *command {
+	c.helpShort = help
+	return c
+}
+
+// Добавляет / заменяет Help команды
+func (c *command) AddHelp(help string) *command {
+	c.help = help
+	return c
+}
+
+/* Добавляет флаг к команде
+   name - название флага
+   help - краткая справка
+*/
+func (c *command) AddFlag(name string, help string) *Flag {
+	// if c.flags == nil {
+	// 	c.flags = make(map[string]*Flag)
+	// }
+	fl := &Flag{
+		id:        len(c.flags),
+		noValues:  false,
+		name:      name,
+		helpShort: help,
+		parent:    c,
+	}
+	if c.flags[name] != nil {
+		fmt.Printf("WARNING: Повторно заявлен флаг: %s %s\n", c.name, name)
+	}
+	c.flags[name] = fl
+	if c.noFlags {
+		fmt.Printf("Запрашивается флаг, к команде не принимающих их %s %s\n", c.name, name)
+	}
+	return fl
+}
+
+// Возвращает значение и метку об установке значения
+func (c *command) IsPresent() bool {
+	return c.isPresent
+}
+
+// сортировка ключей Map command по значению id в command (автоматически назначаемому)
+func (ac *AllCommands) sortedCommand() []string {
+
+	keys := make([]string, 0, len(ac.Commands))
+	for key := range ac.Commands {
+		keys = append(keys, key)
+	}
+
+	sort.Slice(keys, func(i, j int) bool {
+		if ac.Commands[keys[i]].id == ac.Commands[keys[j]].id {
+			return ac.Commands[keys[i]].id < ac.Commands[keys[j]].id
 		}
+		return ac.Commands[keys[i]].id < ac.Commands[keys[j]].id
+	})
+	return keys
+}
+
+// сортировка ключей Map flags по значению id в Flag (автоматически назначаемому)
+func (c *command) sortedFlag() []string {
+	keys := make([]string, 0, len(c.flags))
+	for key := range c.flags {
+		keys = append(keys, key)
 	}
-	if len(*NotFoundCommand) > 0 {
-		c.GetHelp()
-		fmt.Printf("Ошибка: параметры не существуют, возможно у вас есть опечатки:\n%s\n", *NotFoundCommand)
-		//	os.Exit(1)
-	}
+
+	sort.Slice(keys, func(i, j int) bool {
+		if c.flags[keys[i]].id == c.flags[keys[j]].id {
+			return c.flags[keys[i]].id < c.flags[keys[j]].id
+		}
+		return c.flags[keys[i]].id < c.flags[keys[j]].id
+	})
+	return keys
 }
