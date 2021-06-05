@@ -12,7 +12,7 @@ run: build
 	./bin/main/main   copy -r r234 -w ./e help -help -mm  reverse  addPath -p 44
 
 gittag:
-	git tag v2.0.1
+	git tag v2.0.2
 	git push origin --tags
 
 help:
