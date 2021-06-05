@@ -1,6 +1,6 @@
 //
 
-package structs
+package cli
 
 import (
 	"bytes"

@@ -1,4 +1,4 @@
-package structs
+package cli
 
 //флаг
 type Flag struct {
@@ -14,9 +14,9 @@ type Flag struct {
 }
 
 // Устанавливает флаг обязательный и возвращает родительскую команду
-func (f *Flag) Required() *command {
+func (f *Flag) Required() *Flag {
 	f.isRequired = true
-	return f.parent
+	return f
 }
 
 // Возвращает родительскую команду флага
@@ -25,9 +25,9 @@ func (f *Flag) GetCommand() *command {
 }
 
 // Устанавливает метку о том что значений у флага не ждем
-func (f *Flag) NoValues() *command {
+func (f *Flag) NoValues() *Flag {
 	f.noValues = true
-	return f.parent
+	return f
 }
 
 // Добавляет флаг к команде

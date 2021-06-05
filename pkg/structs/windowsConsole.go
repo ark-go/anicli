@@ -2,11 +2,12 @@
 
 // сработает только при сборке виндовс
 // GOOS=windows GOARCH=amd64 go build -o ./bin/main/winmain.exe cmd/app/main/main.go
-package structs
+package cli
 
 import (
-	"golang.org/x/sys/windows"
 	"os"
+
+	"golang.org/x/sys/windows"
 )
 
 func init() {

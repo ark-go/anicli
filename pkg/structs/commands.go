@@ -1,5 +1,5 @@
 // Все структуры проекта
-package structs
+package cli
 
 import (
 	"errors"
@@ -30,6 +30,7 @@ type AllCommands struct {
 	Commands   map[string]*command
 	HelpBefore string
 	HelpAfter  string
+	//	Rrrrr      type
 }
 
 // start

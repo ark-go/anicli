@@ -1,4 +1,4 @@
-package structs
+package cli
 
 import (
 	"errors"
@@ -71,6 +71,13 @@ func init() {
 
 	printFormatRight = []int{15, 50}
 	printFormatLeft = []int{-15, 50}
+}
+
+func isNumber(str string) bool {
+	if _, err := strconv.ParseInt(str, 10, 64); err == nil {
+		return true
+	}
+	return false
 }
 
 // var (

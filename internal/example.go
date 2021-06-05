@@ -1,10 +1,10 @@
 // Пакет с примером для ...
 package internal
 
-import "github.com/ark-go/cli/pkg/structs"
+import "github.com/ark-go/cli/pkg/cli"
 
-func CreateCmd() *structs.AllCommands {
-	cmd := structs.GetCommands()
+func CreateCmd() *cli.AllCommands {
+	cmd := cli.GetCommands()
 	cmd.HelpBefore = `
 Пример пакета, позволяющего разбирать коммандную строку и создавать заранее известную структуру команд и флагов,
 правила простые...
@@ -12,7 +12,9 @@ func CreateCmd() *structs.AllCommands {
 	cmd.HelpAfter = `copyright 2021
 `
 	cmd.Add("help", "Вывод справки").NoFlags().Required()
-	cmd.Add("-help", "Вывод справки")
+	cmd.Add("help8", "Вывод справки").NoFlags().Required()
+	cmd.Add("-help", "Вывод справки").Required().AddFlag("-mm", "тест").NoValues().Required()
+	//cmd.Add("-help9", "Вывод справки333").Required()
 	cmd.Add("copy", "Копирование файла").
 		AddFlag("-r", "путь к файлу для чтения, если путь с пробелами то в кавычках").Required().
 		AddFlag("-w", "Путь к файлу для записи, если путь с пробелами то в кавычках")
