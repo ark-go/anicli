@@ -4,15 +4,6 @@ import (
 	"os"
 )
 
-type ErrCommand struct {
-	Command string
-	Err     error
-}
-
-func (e *ErrCommand) Error() string {
-	return e.Command + ": " + e.Err.Error()
-}
-
 //	Разбирает командную строку,
 //	 если чтото не сойдется вылетит с ошибкой и вернет ошибочные флаги
 func (ac *AllCommands) ParseCmdExitErrors(printError bool) error {
@@ -30,8 +21,8 @@ func (ac *AllCommands) ParseCmdExitErrors(printError bool) error {
 			errorMsg.notCommand = true
 			errorMsg.Command = c
 			return &errorMsg
-			// ErrUnknownСommands = errors.New("Данной команды [" + c + "] не существует")
-			// return ErrUnknownСommands
+			// errUnknownСommands = errors.New("Данной команды [" + c + "] не существует")
+			// return errUnknownСommands
 		}
 		// есть команда
 		ac.Commands[c].isPresent = true
@@ -46,8 +37,8 @@ func (ac *AllCommands) ParseCmdExitErrors(printError bool) error {
 			errorMsg.notFlag = true
 			errorMsg.Command = c
 			return &errorMsg
-			// ErrUnknownСommands = errors.New("у данной команды [" + c + "] ожидался флаг")
-			// return ErrUnknownСommands
+			// errUnknownСommands = errors.New("у данной команды [" + c + "] ожидался флаг")
+			// return errUnknownСommands
 		}
 
 		i++ // преходим на ожидаемый флаг
@@ -56,8 +47,8 @@ func (ac *AllCommands) ParseCmdExitErrors(printError bool) error {
 			errorMsg.notFlag = true
 			errorMsg.Command = c
 			return &errorMsg
-			// ErrUnknownСommands = errors.New("у данной команды [" + c + "] ожидался флаг")
-			// return ErrUnknownСommands
+			// errUnknownСommands = errors.New("у данной команды [" + c + "] ожидался флаг")
+			// return errUnknownСommands
 		}
 
 		// вероятно что есть флаг, пройдемся по строке в поиске всех флагов команды
@@ -77,8 +68,8 @@ func (ac *AllCommands) ParseCmdExitErrors(printError bool) error {
 				errorMsg.Command = c
 				errorMsg.Flag = flag
 				return &errorMsg
-				// ErrUnknownСommands = errors.New("у данной команды [" + c + "] нет такого флага [" + flag + "]")
-				// return ErrUnknownСommands
+				// errUnknownСommands = errors.New("у данной команды [" + c + "] нет такого флага [" + flag + "]")
+				// return errUnknownСommands
 			}
 			// Это наш флаг
 
@@ -97,8 +88,8 @@ func (ac *AllCommands) ParseCmdExitErrors(printError bool) error {
 				errorMsg.Flag = flag
 				errorMsg.notVal = true
 				return &errorMsg
-				// ErrUnknownСommands = errors.New("Команда [" + c + "] у флага [" + flag + "] должно быть значение")
-				// return ErrUnknownСommands
+				// errUnknownСommands = errors.New("Команда [" + c + "] у флага [" + flag + "] должно быть значение")
+				// return errUnknownСommands
 			}
 			if utils.isMinus(cmd[i+1]) && !isNumber(cmd[i+1]) { // Начинается с "-" и не число
 				// есть чтото с минусом но не цифра, а мы ждали значение
@@ -106,8 +97,8 @@ func (ac *AllCommands) ParseCmdExitErrors(printError bool) error {
 				errorMsg.Flag = flag
 				errorMsg.notVal = true
 				return &errorMsg
-				// ErrUnknownСommands = errors.New("Команда [" + c + "] у флага [" + flag + "] должно быть значение")
-				// return ErrUnknownСommands
+				// errUnknownСommands = errors.New("Команда [" + c + "] у флага [" + flag + "] должно быть значение")
+				// return errUnknownСommands
 				//break // ожидали значение без минуса, с минусом только если число, может команда начнем сначала
 			}
 			// значение есть, сохраним значение к флагу

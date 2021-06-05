@@ -31,7 +31,7 @@ func (u *_utilites) isMinus(str string) bool {
 var utils _utilites
 
 //var regexpMinus regexp.Regexp
-var ErrUnknownСommands error
+var errUnknownСommands error
 
 var printFormatRight []int
 var printFormatLeft []int
@@ -67,7 +67,7 @@ func init() {
 	// if regexOne, err := regexp.Compile(`^-`); err == nil {
 	// 	regexpMinus = *regexOne
 	// }
-	ErrUnknownСommands = errors.New("неизвестные команды или флаги")
+	errUnknownСommands = errors.New("неизвестные команды или флаги")
 
 	printFormatRight = []int{15, 50}
 	printFormatLeft = []int{-15, 50}

@@ -17,7 +17,7 @@ type command struct {
 	// не требует данных
 	noFlags bool
 	//Флаги этой команды
-	flags map[string]*Flag
+	flags map[string]*flag
 	//Требует обязательного наличия, в командной строке
 	isRequired bool
 	//Короткая справка для -help
@@ -82,7 +82,7 @@ func (ac *AllCommands) Add(name string, help string) *command {
 		name:      name,
 		noFlags:   false,
 		helpShort: help,
-		flags:     make(map[string]*Flag),
+		flags:     make(map[string]*flag),
 	}
 	if ac.Commands[name] != nil {
 		fmt.Printf("WARNING: Повторно определена каманда: %s\n", name)
@@ -120,11 +120,11 @@ func (c *command) AddHelp(help string) *command {
    name - название флага
    help - краткая справка
 */
-func (c *command) AddFlag(name string, help string) *Flag {
+func (c *command) AddFlag(name string, help string) *flag {
 	// if c.flags == nil {
-	// 	c.flags = make(map[string]*Flag)
+	// 	c.flags = make(map[string]*flag)
 	// }
-	fl := &Flag{
+	fl := &flag{
 		id:        len(c.flags),
 		noValues:  false,
 		name:      name,

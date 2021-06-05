@@ -1,7 +1,7 @@
 package cli
 
 //флаг
-type Flag struct {
+type flag struct {
 	id         int      // для сортировки
 	parent     *command // Пригодится для возврата родительской команды
 	name       string
@@ -14,47 +14,47 @@ type Flag struct {
 }
 
 // Устанавливает флаг обязательный и возвращает родительскую команду
-func (f *Flag) Required() *Flag {
+func (f *flag) Required() *flag {
 	f.isRequired = true
 	return f
 }
 
 // Возвращает родительскую команду флага
-func (f *Flag) GetCommand() *command {
+func (f *flag) GetCommand() *command {
 	return f.parent
 }
 
 // Устанавливает метку о том что значений у флага не ждем
-func (f *Flag) NoValues() *Flag {
+func (f *flag) NoValues() *flag {
 	f.noValues = true
 	return f
 }
 
 // Добавляет флаг к команде
-func (f *Flag) AddFlag(name string, help string) *Flag {
+func (f *flag) AddFlag(name string, help string) *flag {
 	return f.parent.AddFlag(name, help)
 }
 
 // Добавляет / изменяет справку о флаге
-func (f *Flag) AddHelp(help string) *Flag {
+func (f *flag) AddHelp(help string) *flag {
 	f.help = help
 	return f
 }
 
 // Добавляет / заменяет короткую справку о флаге
-func (c *Flag) AddHelpShort(help string) *Flag {
+func (c *flag) AddHelpShort(help string) *flag {
 	c.helpShort = help
 	return c
 }
 
 // устанавливаем метку о том что флаг был найден в коммандной строке
-// func (f *Flag) setPresent() *Flag {
+// func (f *flag) setPresent() *flag {
 // 	f.isPresent = true
 // 	return f
 // }
 
 // Возвращает значение и метку об установке значения
-func (f *Flag) GetValues() (bool, []string) {
+func (f *flag) GetValues() (bool, []string) {
 
 	return f.isPresent, f.values
 }

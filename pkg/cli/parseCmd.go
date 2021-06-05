@@ -81,7 +81,7 @@ func (ac *AllCommands) ParseCmd(printError bool) (string, error) {
 		// 	fmt.Printf("Неизвестные команды или флаги:\n")
 		// 	PrintConsole("",printFormatRight, "мусор", strings.Join(musor, ", ")+"\n")
 		// }
-		return strings.Join(musor, ", "), ErrUnknownСommands
+		return strings.Join(musor, ", "), errUnknownСommands
 	}
 
 	return "", nil
