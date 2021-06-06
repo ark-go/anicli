@@ -73,8 +73,22 @@ func init() {
 	printFormatLeft = []int{-15, 50}
 }
 
-func isNumber(str string) bool {
+func isInt(str string) bool {
 	if _, err := strconv.ParseInt(str, 10, 64); err == nil {
+		return true
+	}
+	return false
+}
+
+func isFloat(str string) bool {
+	if _, err := strconv.ParseFloat(str, 64); err == nil {
+		return true
+	}
+	return false
+}
+
+func isNumber(str string) bool {
+	if isInt(str) || isFloat(str) {
 		return true
 	}
 	return false

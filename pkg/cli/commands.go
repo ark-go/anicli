@@ -7,6 +7,7 @@ import (
 	"sort"
 )
 
+type value_2 int
 type command struct {
 	// автополе только для сортировки
 	id int
@@ -66,6 +67,26 @@ func (ac *AllCommands) IsCommand(command string) (bool, error) {
 	}
 	return true, nil
 
+}
+func (ac *AllCommands) GetValues(command string, flag string) ([]string, error) {
+	com := ac.Commands[command]
+	if com == nil {
+		return nil, errors.New("такой команды не существует, ошибка в имени команды")
+	}
+	if !com.isPresent {
+		return nil, errors.New("не установлена команда")
+	}
+	flagt := ac.Commands[command].flags[flag]
+	if flagt == nil {
+		return nil, errors.New("такого флага не существует, ошибка в имени флага")
+	}
+	if !flagt.isPresent {
+		return nil, errors.New("не установлен флаг")
+	}
+	if flagt.noValues {
+		return nil, nil
+	}
+	return flagt.values, nil
 }
 
 /* Добавить команду

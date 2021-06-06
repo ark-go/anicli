@@ -1,19 +1,48 @@
-.PHONY: 
-space:
-	$(info eeeee)
-build:
-	go build -o ./bin/main/main cmd/app/main/main.go
-	$(info Компиляция)
-buildwin:
-	GOOS=windows GOARCH=amd64 go build -o ./bin/main/winmain.exe cmd/app/main/main.go
-#.SILENT: 
-run: build
-	$(info Запуск)
-	./bin/main/main   copy -r r234 -w ./e help -help -mm  reverse  addPath -p 44
+SHELL := /bin/bash
+.PHONY: check
 
-gittag:
-	git tag v2.0.2
-	git push origin --tags
+.SILENT: build getlasttag
+
+build: getlasttag
+	$(info +Компиляция)
+	go build -o ./bin/main/main cmd/app/main/main.go
+	
+buildwin:
+	$(info +Компиляция windows)
+	GOOS=windows GOARCH=amd64 go build -o ./bin/main/winmain.exe cmd/app/main/main.go
+
+run: build getlasttag
+	$(info +Запуск)
+	./bin/main/main   copy -r r234 -w ./e help8 help -help -mm  reverse  addPath -p -44.89 -p -788 -p879
+	
+getlasttag:
+	git describe --tags
+# make gittag tag=vx.x.x
+gittag: check
+
+check: 
+#ifndef $(tag)#"$(git describe --tags)"; 
+	
+	@{ \
+	set -e ;\
+	line=`git describe --tags`;\
+#	echo $$line; \
+	echo Введите новый tag? последний тег: $$line [n - отмена];\
+	read line;\
+	if [[ $$line == "n" ]]; \
+	then \
+	echo вы отказались; \
+	exit 7;\
+	else \
+	git tag $$line ;\
+	git push origin --tags ;\
+	echo end;\
+	fi;\
+	}
+#endif
+	
+#	@git tag $$line
+#	@git push origin --tags
 
 help:
 	go doc -all ./internal
