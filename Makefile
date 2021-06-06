@@ -11,9 +11,9 @@ buildwin:
 	$(info +Компиляция windows)
 	GOOS=windows GOARCH=amd64 go build -o ./bin/main/winmain.exe cmd/app/main/main.go
 
-run: build getlasttag
+run: build
 	$(info +Запуск)
-	./bin/main/main   copy -r r234 -w ./e help8 help -help -mm  reverse  addPath -p -44.89 -p -788 -p879
+	./bin/main/main -qwert -89  copy -r r234 -w ./e help8 help -help -mm  reverse  addPath -p -44.89 -p -788 -p 879 
 	
 getlasttag:
 	git describe --tags

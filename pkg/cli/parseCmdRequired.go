@@ -19,7 +19,11 @@ func (e *ErrorCli) Error() string {
 		}
 		if e.notFlag {
 			//! нет обязательного флага у команды
-			return "*No mandatory " + e.Flag + " flag, commands " + e.Command
+			if e.Command != "Flags :" {
+				return "*No mandatory " + e.Flag + " flag, commands " + e.Command
+			} else {
+				return "*No mandatory " + e.Flag + " flag"
+			}
 		}
 		return "Unknown error while checking required flags"
 	} else {
@@ -29,11 +33,19 @@ func (e *ErrorCli) Error() string {
 		}
 		if e.notVal {
 			//! Для команды XXX, флаг YYY должен иметь значение
-			return "For command " + e.Command + ", the " + e.Flag + " flag must have a value"
+			if e.Command != "Flags :" {
+				return "For command " + e.Command + ", the " + e.Flag + " flag must have a value"
+			} else {
+				return "The " + e.Flag + " flag must have a value"
+			}
 		}
 		if e.Command != "" && e.Flag != "" {
 			//! Для команды XXX флаг YYY не существует
-			return "For command " + e.Command + ", the " + e.Flag + " flag doesn't exist"
+			if e.Command != "Flags :" {
+				return "For command " + e.Command + ", the " + e.Flag + " flag doesn't exist"
+			} else {
+				return "The " + e.Flag + " flag doesn't exist"
+			}
 		}
 		if e.Command != "" {
 			//! команда не существует
@@ -48,7 +60,9 @@ func (e *ErrorCli) Error() string {
 func (ac *AllCommands) ParseCmdRequired() error {
 	keys := ac.sortedCommand()
 	for _, key := range keys {
-
+		// if key == "Flags :" {
+		// 	continue
+		// }
 		if ac.Commands[key].isRequired {
 			// если команда требуется
 			if !ac.Commands[key].isPresent {
@@ -61,7 +75,7 @@ func (ac *AllCommands) ParseCmdRequired() error {
 
 			}
 		}
-		if !ac.Commands[key].isPresent {
+		if ac.Commands[key].isPresent {
 			// если установлена, проверим флаги
 			if err := ac.parseFlagsRequired(ac.Commands[key]); err != nil {
 				return err

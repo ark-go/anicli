@@ -16,41 +16,49 @@ func (ac *AllCommands) ParseCmdExitErrors(printError bool) error {
 
 	for i := 0; i < len(cmd); i++ {
 		c := cmd[i]
-		if ac.Commands[c] == nil || ac.Commands[c].isPresent {
-			// такой команды нет, или уже установлена  // а можно и не запрещать
-			errorMsg.notCommand = true
-			errorMsg.Command = c
-			return &errorMsg
-			// errUnknownСommands = errors.New("Данной команды [" + c + "] не существует")
-			// return errUnknownСommands
-		}
-		// есть команда
-		ac.Commands[c].isPresent = true
+		//var nocommand bool = false
+		if i == 0 && utils.isMinus(c) && ac.Commands["Flags :"] != nil {
+			// это первый элемент, это минус флаг, пустая команда есть в заявленных
+			c = "Flags :"
+			//	nocommand = true
+		} else {
+			if ac.Commands[c] == nil || ac.Commands[c].isPresent {
+				// такой команды нет, или уже установлена  // а можно и не запрещать
+				errorMsg.notCommand = true
+				errorMsg.Command = c
+				return &errorMsg
+				// errUnknownСommands = errors.New("Данной команды [" + c + "] не существует")
+				// return errUnknownСommands
+			}
 
-		if ac.Commands[c].noFlags || len(ac.Commands[c].flags) == 0 {
-			// Флаги не нужны значит команда кончилась
-			continue
-		}
-		//! Здесь начинается обработка флагов
-		if (i + 1) >= len(cmd) {
-			// кончилась командная строка, но мы сюда зачем то пришли, значит ошибка, ожидали флаг
-			errorMsg.notFlag = true
-			errorMsg.Command = c
-			return &errorMsg
-			// errUnknownСommands = errors.New("у данной команды [" + c + "] ожидался флаг")
-			// return errUnknownСommands
-		}
+			// есть команда
+			ac.Commands[c].isPresent = true
 
-		i++ // преходим на ожидаемый флаг
-		if !utils.isMinus(cmd[i]) {
-			// оказалось это не флаг, ошибка
-			errorMsg.notFlag = true
-			errorMsg.Command = c
-			return &errorMsg
-			// errUnknownСommands = errors.New("у данной команды [" + c + "] ожидался флаг")
-			// return errUnknownСommands
-		}
+			if ac.Commands[c].noFlags || len(ac.Commands[c].flags) == 0 {
+				// Флаги не нужны значит команда кончилась
+				continue
+			}
 
+			//! Здесь начинается обработка флагов
+			if (i + 1) >= len(cmd) {
+				// кончилась командная строка, но мы сюда зачем то пришли, значит ошибка, ожидали флаг
+				errorMsg.notFlag = true
+				errorMsg.Command = c
+				return &errorMsg
+				// errUnknownСommands = errors.New("у данной команды [" + c + "] ожидался флаг")
+				// return errUnknownСommands
+			}
+
+			i++ // преходим на ожидаемый флаг
+			if !utils.isMinus(cmd[i]) {
+				// оказалось это не флаг, ошибка
+				errorMsg.notFlag = true
+				errorMsg.Command = c
+				return &errorMsg
+				// errUnknownСommands = errors.New("у данной команды [" + c + "] ожидался флаг")
+				// return errUnknownСommands
+			}
+		}
 		// вероятно что есть флаг, пройдемся по строке в поиске всех флагов команды
 		for (i) < len(cmd) {
 			var flag string

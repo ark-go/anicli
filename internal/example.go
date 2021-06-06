@@ -11,6 +11,8 @@ func CreateCmd() *cli.AllCommands {
 `
 	cmd.HelpAfter = `copyright 2021
 `
+	cmd.NoCommand("rerer").AddFlag("-qwert", "путь к файлу для ч").Required().
+		AddFlag("-ddd", "dddddddddddddddddddd")
 	cmd.Add("help", "Вывод справки").NoFlags().Required()
 	cmd.Add("help8", "Вывод справки").NoFlags().Required()
 	cmd.Add("-help", "Вывод справки").Required().AddFlag("-mm", "тест").NoValues().Required()

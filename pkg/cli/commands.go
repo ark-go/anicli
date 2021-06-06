@@ -113,6 +113,20 @@ func (ac *AllCommands) Add(name string, help string) *command {
 	return &cmd
 }
 
+// Для установки флагов, без команды, которые должны идти первыми в командной строке
+//  help - общая информация о флагах
+//  "например, эти флаги должны идти до любых комманд, или хотя бы один"
+func (ac *AllCommands) NoCommand(help ...string) *command {
+	var c *command
+	if len(help) > 0 {
+		c = ac.Add("Flags :", help[0])
+	} else {
+		c = ac.Add("Flags :", "")
+	}
+	c.isPresent = true
+	return c
+}
+
 // Делает команду обязательной
 func (c *command) Required() *command {
 	c.isRequired = true
